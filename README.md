@@ -111,3 +111,13 @@ my_device.set_attrs({"MyString": "Hello",
 
 session.publish_attrs(my_device)
 ```
+
+### Retrieving historical data
+You can retrieve the history of values from a specific attribute from a device. Let's consider the session and device from the last example.
+
+```python
+
+# Retrieving the last 100 measurements for attribute "MyFloat"
+# This method returns a pair of lists (timestamp, data)
+ts, data = session.get_history(my_device, "MyFloat", n_to_read=100)
+```
