@@ -113,6 +113,7 @@ session.publish_attrs(my_device)
 ```
 
 ### Retrieving historical data
+
 You can retrieve the history of values from a specific attribute from a device. Let's consider the session and device from the last example.
 
 ```python
