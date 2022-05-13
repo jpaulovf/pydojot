@@ -105,7 +105,7 @@ With a list of loaded devices, you can send data to any of the devices in the se
 
 my_device = devices[2]
 
-my_device.set_attrs({"MyString": f"test {k}",
+my_device.set_attrs({"MyString": "Hello",
                      "MyInteger": random.randint(0,10),
                      "MyFloat": random.random()})
 
