@@ -10,8 +10,14 @@ Author: jpaulovf@gmail.com
 
 """
 
-import requests
 from .exceptions import RequestException
+from .device import DojotDevice
+from .template import DojotTemplate
+
+import requests
+import json
+from paho.mqtt import publish
+from datetime import datetime, timezone
 
 class DojotSession:
 
@@ -40,3 +46,76 @@ class DojotSession:
         if resp.status_code >= 400:
             raise RequestException(resp.status_code, resp.content.decode("utf-8"))
         self._jwt = resp.json()['jwt']
+
+    def load_devices(self):
+        url = f"{self.get_url()}/device"
+        headers = {'Authorization': f"Bearer {self.get_jwt()}"}
+        resp = requests.get(url, headers=headers)
+        if resp.status_code >= 400:
+            raise RequestException(resp.status_code, resp.content.decode("utf-8"))
+        
+        devices = []
+        for dev in resp.json()['devices']:
+            devices.append(DojotDevice(dev['label'], dev['templates'], dev['id']))
+            
+        return devices
+
+    def load_templates(self):
+        url = f"{self.get_url()}/template"
+        headers = {'Authorization': f"Bearer {self.get_jwt()}"}
+        resp = requests.get(url, headers=headers)
+        if resp.status_code >= 400:
+            raise RequestException(resp.status_code, resp.content.decode("utf-8"))
+        
+        templates = []
+        for temp in resp.json()['templates']:
+            attrs = []
+            for attr in temp['attrs']:
+                attrs.append({'label': attr['label'], 'type': attr['type'], 'value_type': attr['value_type']})
+            templates.append(DojotTemplate(temp['label'], attrs, temp['id']))
+            
+        return templates
+
+    def commit_template(self, template: DojotTemplate):
+        url = f"{self.get_url()}/template"
+        headers = {'Authorization': f"Bearer {self.get_jwt()}"}
+        payload = {'label': template.get_label(), 'attrs': template.get_attrs()}
+        resp = requests.post(url, headers=headers, json=payload)
+        if resp.status_code >= 400:
+            raise RequestException(resp.status_code, resp.content.decode("utf-8"))
+        template.set_id(resp.json()['template']['id'])
+        return resp.json()
+
+    def commit_device(self, device: DojotDevice):
+        url = f"{self.get_url()}/device"
+        headers = {'Authorization': f"Bearer {self.get_jwt()}"}
+        payload = {'label': device.get_label(), 'templates': device.get_templates()}
+        resp = requests.post(url, headers=headers, json=payload)
+        if resp.status_code >= 400:
+            raise RequestException(resp.status_code, resp.content.decode("utf-8"))
+        device.set_id(resp.json()['devices'][0]['id'])
+        return resp.json()
+     
+    def publish_attrs(self, device: DojotDevice):
+        hostname = self.get_url().replace("/","").split(":")[1]
+        topic = f"{self.get_username()}:{device.get_id()}/attrs"
+        auth = {
+                'username': f"{self.get_username()}:{device.get_id()}",
+                'password': f"{self.get_password()}"
+               }
+        msg = json.dumps(device.get_attrs())
+        publish.single(topic=topic, payload=msg, auth=auth, hostname=hostname)
+
+    def get_history(self, device: DojotDevice, attr_name: str, n_to_read: int = 1):
+        url = f"{self.get_url()}/history/device/{device.get_id()}/"
+        url_params=f"history?lastN={n_to_read}&attr={attr_name}"
+        headers = {'Authorization': f"Bearer {self.get_jwt()}"}
+        
+        resp = requests.get(url + url_params, headers=headers)
+        if resp.status_code >= 400:
+            raise RequestException(resp.status_code, resp.content.decode("utf-8"))
+        ts = [datetime.strptime(attr['ts'], "%Y-%m-%dT%H:%M:%S.%fZ") for attr in resp.json()]
+        ts = [t.replace(tzinfo=timezone.utc).astimezone(tz=None) for t in ts]
+        val = [attr['value'] for attr in resp.json()]
+        return ts, val
+    

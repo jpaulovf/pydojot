@@ -4,74 +4,110 @@ Under development!
 
 See the Dojot's API documentation [here](https://dojotdocs.readthedocs.io/en/latest/)
 
+---
+
 ## Dependencies
 
 . [paho-mqtt](https://pypi.org/project/paho-mqtt/)
 
-## Example
+## Examples
+
+### Opening a Dojot session
+For this example, consider a Dojot server running on 'localhost' at port 8000.
 
 ```python
-"""
-pydojot's example
-
-"""
 
 from pydojot.session import DojotSession
-from pydojot.template import DojotTemplate
-from pydojot.device import DojotDevice
-import random
-from time import sleep
-import json
-import matplotlib.pyplot as plt
 
-# Opening a new Dojot session @ localhost, port 8000
+# Creating a new session. Logging in as "admin" with password "admin"
 session = DojotSession("http://localhost:8000", username="admin", password="admin")
 
-# Creating a new template called 'Test Template'
-template = DojotTemplate(label="Test Template")
+```
+
+### Creating a template
+Consider that we already opened a session by instancing a *DojotSession* object, as shown in the previous example.
+```python
+
+from pydojot.template import DojotTemplate
+
+# Creating an empty template
+template = DojotTemplate("My Template")
 
 # Adding some attributes to template
 template.add_attribute(label="MyString", type="dynamic", value_type="string")
 template.add_attribute(label="MyInteger", type="dynamic", value_type="integer")
 template.add_attribute(label="MyFloat", type="dynamic", value_type="float")
 
-# Commit the template to the opened session
-template.commit(session)
-print(f"Created template '{template.get_label()}' with id: {template.get_id()}")
+# Uploading the template to the server (opened session)
+session.commit_template(template)
 
-# Creating various devices
-devices = []
-for k in range(0,3):
+# The line above will generate an ID for the template.
+# You can print the template to check its parameters.
+print(template)
+```
 
-    # Create a new device based on the template
-    device = DojotDevice(label=f"Test Device {k}")
-    device.add_template(template)
+### Creating a device from a template
+For this next example, let's consider the session and template shown above.
+```python
 
-    # Commit the device to the opened session
-    device.commit(session)
-    print(f"Created device '{device.get_label()}' with id: {device.get_id()}")
+from pydojot.device import DojotDevice
 
-    devices.append(device)
+# Creating an empty device
+device = DojotDevice("My Device")
 
-# Setting and sending devices' parameters
-print("Sending data to devices...")
+# Adding a template to this device
+device.add_template(template)
+
+# Uploading the device to the server (opened session)
+session.commit_device(device)
+
+# The line above will generate an ID for the device.
+# You can print the device to check its parameters.
+print(device)
+```
+
+### Sending MQTT data
+In order to send a device MQTT data to the creted session, you'll need a two-step proccess:
+1. Set the value for device's attributes;
+2. Publish.
+
+In the example below, let's send some random data.
+```python
+
+import random
+
 for k in range(0,100):
-    for dev in devices:
-        dev.set_attrs({"MyString": f"test {k}",
-                       "MyInteger": random.randint(0,10),
-                       "MyFloat": random.random()})
-        dev.publish_attrs(session)
-        print(f"Published message {json.dumps(dev.get_attrs())} to device {dev.get_id()}") 
-    # sleep(1)
+    device.set_attrs({"MyString": f"test {k}",
+                      "MyInteger": random.randint(0,10),
+                      "MyFloat": random.random()})
 
-# Getting and plotting data history
-plt.figure(1)
-for dev in devices:
-    ts, data = dev.get_history(session, "MyInteger", n_to_read=100)
-    plt.plot(ts, data, lw=0.5, label=f"Device {dev.get_id()}")
-plt.legend()
-plt.xlabel("Date/time")
-plt.ylabel("MyInteger value")
-plt.title("Data history")
-plt.show()
+    session.publish_attrs(device)
+```
+
+### Get a list of existing templates/devices in a session
+You can get a list of the available templates and devices in an opened session.
+
+```python
+
+from pydojot.session import DojotSession
+
+session = DojotSession("http://localhost:8000", username="admin", password="admin")
+
+# This method returns a list of templates
+templates = session.load_templates()
+
+# This method returns a list of devices
+devices = session.load_devices()
+```
+With a list of loaded devices, you can send data to any of the devices in the session.
+
+```python
+
+my_device = devices[2]
+
+my_device.set_attrs({"MyString": f"test {k}",
+                     "MyInteger": random.randint(0,10),
+                     "MyFloat": random.random()})
+
+session.publish_attrs(my_device)
 ```

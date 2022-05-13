@@ -1,13 +1,13 @@
 """
-pydojot's example
+pydojot's example: creating and manipulating devices and templates
 
 """
 
 from pydojot.session import DojotSession
 from pydojot.template import DojotTemplate
 from pydojot.device import DojotDevice
+
 import random
-from time import sleep
 import json
 import matplotlib.pyplot as plt
 
@@ -23,7 +23,7 @@ template.add_attribute(label="MyInteger", type="dynamic", value_type="integer")
 template.add_attribute(label="MyFloat", type="dynamic", value_type="float")
 
 # Commit the template to the opened session
-template.commit(session)
+session.commit_template(template)
 print(f"Created template '{template.get_label()}' with id: {template.get_id()}")
 
 # Creating various devices
@@ -35,9 +35,10 @@ for k in range(0,3):
     device.add_template(template)
 
     # Commit the device to the opened session
-    device.commit(session)
+    session.commit_device(device)
     print(f"Created device '{device.get_label()}' with id: {device.get_id()}")
 
+    # Adding created device to a device list
     devices.append(device)
 
 # Setting and sending devices' parameters
@@ -47,14 +48,13 @@ for k in range(0,100):
         dev.set_attrs({"MyString": f"test {k}",
                        "MyInteger": random.randint(0,10),
                        "MyFloat": random.random()})
-        dev.publish_attrs(session)
+        session.publish_attrs(dev)
         print(f"Published message {json.dumps(dev.get_attrs())} to device {dev.get_id()}") 
-    # sleep(1)
 
 # Getting and plotting data history
 plt.figure(1)
 for dev in devices:
-    ts, data = dev.get_history(session, "MyInteger", n_to_read=100)
+    ts, data = session.get_history(dev, "MyInteger", n_to_read=100)
     plt.plot(ts, data, lw=0.5, label=f"Device {dev.get_id()}")
 plt.legend()
 plt.xlabel("Date/time")
