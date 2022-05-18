@@ -11,6 +11,7 @@ Author: jpaulovf@gmail.com
 
 from .template import DojotTemplate
 
+
 class DojotDevice:
 
     def __init__(self, label: str, templates: list = [], id: str = None):
@@ -43,7 +44,6 @@ class DojotDevice:
 
     def get_attrs(self):
         return self._attrs
-
 
     def __str__(self):
         return (f"Dojot Device\n"
