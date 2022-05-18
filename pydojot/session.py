@@ -10,14 +10,15 @@ Author: jpaulovf@gmail.com
 
 """
 
-from .exceptions import RequestException
-from .device import DojotDevice
-from .template import DojotTemplate
+import json
+from datetime import datetime, timezone
 
 import requests
-import json
 from paho.mqtt import publish
-from datetime import datetime, timezone
+
+from device import DojotDevice
+from exceptions import RequestException
+from template import DojotTemplate
 
 
 class DojotSession:

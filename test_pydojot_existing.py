@@ -2,9 +2,9 @@
 pydojot: operating with existing templates/devices
 """
 
-from pydojot.session import DojotSession
-
 import random
+
+from pydojot.session import DojotSession
 
 # Open a new session
 session = DojotSession("http://localhost:8000",
