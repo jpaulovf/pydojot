@@ -47,7 +47,7 @@ class DojotTemplate:
         to_remove = next(
             (i for i, x in enumerate(self._attrs) if x['label'] == label),
             None)
-        if to_remove != None:
+        if to_remove is not None:
             self._attrs.pop(to_remove)
 
     def __str__(self):
