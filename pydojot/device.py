@@ -18,6 +18,7 @@ class DojotDevice:
         self._label = label
         self._templates = templates
         self._id = id
+        self._attrs = {}
 
     def get_label(self):
         return self._label
