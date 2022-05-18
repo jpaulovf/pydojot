@@ -55,9 +55,8 @@ for k in range(0, 100):
             "MyFloat": random.random()
         })
         session.publish_attrs(dev)
-        print(
-            f"Published message {json.dumps(dev.get_attrs())} to device {dev.get_id()}"
-        )
+        print(f"Published message {json.dumps(dev.get_attrs())} "
+              f"to device {dev.get_id()}")
 
 # Getting and plotting data history
 plt.figure(1)
