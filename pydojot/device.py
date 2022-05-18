@@ -9,7 +9,7 @@ Author: jpaulovf@gmail.com
 
 """
 
-from .template import DojotTemplate
+from template import DojotTemplate
 
 
 class DojotDevice:

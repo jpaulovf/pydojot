@@ -3,13 +3,14 @@ pydojot's example: creating and manipulating devices and templates
 
 """
 
+import json
+import random
+
+import matplotlib.pyplot as plt
+
+from pydojot.device import DojotDevice
 from pydojot.session import DojotSession
 from pydojot.template import DojotTemplate
-from pydojot.device import DojotDevice
-
-import random
-import json
-import matplotlib.pyplot as plt
 
 # Opening a new Dojot session @ localhost, port 8000
 session = DojotSession("http://localhost:8000",
