@@ -3,16 +3,19 @@ pydojot's example: creating and manipulating devices and templates
 
 """
 
-from pydojot.session import DojotSession
-from pydojot.template import DojotTemplate
-from pydojot.device import DojotDevice
-
-import random
 import json
+import random
+
 import matplotlib.pyplot as plt
 
+from pydojot.device import DojotDevice
+from pydojot.session import DojotSession
+from pydojot.template import DojotTemplate
+
 # Opening a new Dojot session @ localhost, port 8000
-session = DojotSession("http://localhost:8000", username="admin", password="admin")
+session = DojotSession("http://localhost:8000",
+                       username="admin",
+                       password="admin")
 
 # Creating a new template called 'Test Template'
 template = DojotTemplate(label="Test Template")
@@ -24,11 +27,12 @@ template.add_attribute(label="MyFloat", type="dynamic", value_type="float")
 
 # Commit the template to the opened session
 session.commit_template(template)
-print(f"Created template '{template.get_label()}' with id: {template.get_id()}")
+print(
+    f"Created template '{template.get_label()}' with id: {template.get_id()}")
 
 # Creating various devices
 devices = []
-for k in range(0,3):
+for k in range(0, 3):
 
     # Create a new device based on the template
     device = DojotDevice(label=f"Test Device {k}")
@@ -43,13 +47,16 @@ for k in range(0,3):
 
 # Setting and sending devices' parameters
 print("Sending data to devices...")
-for k in range(0,100):
+for k in range(0, 100):
     for dev in devices:
-        dev.set_attrs({"MyString": f"test {k}",
-                       "MyInteger": random.randint(0,10),
-                       "MyFloat": random.random()})
+        dev.set_attrs({
+            "MyString": f"test {k}",
+            "MyInteger": random.randint(0, 10),
+            "MyFloat": random.random()
+        })
         session.publish_attrs(dev)
-        print(f"Published message {json.dumps(dev.get_attrs())} to device {dev.get_id()}") 
+        print(f"Published message {json.dumps(dev.get_attrs())} "
+              f"to device {dev.get_id()}")
 
 # Getting and plotting data history
 plt.figure(1)

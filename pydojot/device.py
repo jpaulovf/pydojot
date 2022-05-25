@@ -9,7 +9,8 @@ Author: jpaulovf@gmail.com
 
 """
 
-from .template import DojotTemplate
+from template import DojotTemplate
+
 
 class DojotDevice:
 
@@ -17,6 +18,7 @@ class DojotDevice:
         self._label = label
         self._templates = templates
         self._id = id
+        self._attrs = {}
 
     def get_label(self):
         return self._label
@@ -43,7 +45,6 @@ class DojotDevice:
 
     def get_attrs(self):
         return self._attrs
-
 
     def __str__(self):
         return (f"Dojot Device\n"

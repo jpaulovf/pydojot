@@ -20,7 +20,9 @@ For this example, consider a Dojot server running on 'localhost' at port 8000.
 from pydojot.session import DojotSession
 
 # Creating a new session. Logging in as "admin" with password "admin"
-session = DojotSession("http://localhost:8000", username="admin", password="admin")
+session = DojotSession("http://localhost:8000",
+                       username="admin",
+                       password="admin")
 
 ```
 
@@ -76,10 +78,12 @@ In the example below, let's send some random data.
 
 import random
 
-for k in range(0,100):
-    device.set_attrs({"MyString": f"test {k}",
-                      "MyInteger": random.randint(0,10),
-                      "MyFloat": random.random()})
+for k in range(0, 100):
+    device.set_attrs({
+        "MyString": f"test {k}",
+        "MyInteger": random.randint(0, 10),
+        "MyFloat": random.random()
+    })
 
     session.publish_attrs(device)
 ```
@@ -91,7 +95,9 @@ You can get a list of the available templates and devices in an opened session.
 
 from pydojot.session import DojotSession
 
-session = DojotSession("http://localhost:8000", username="admin", password="admin")
+session = DojotSession("http://localhost:8000",
+                       username="admin",
+                       password="admin")
 
 # This method returns a list of templates
 templates = session.load_templates()
@@ -105,9 +111,11 @@ With a list of loaded devices, you can send data to any of the devices in the se
 
 my_device = devices[2]
 
-my_device.set_attrs({"MyString": "Hello",
-                     "MyInteger": random.randint(0,10),
-                     "MyFloat": random.random()})
+my_device.set_attrs({
+    "MyString": "Hello",
+    "MyInteger": random.randint(0, 10),
+    "MyFloat": random.random()
+})
 
 session.publish_attrs(my_device)
 ```

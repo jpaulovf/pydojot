@@ -9,6 +9,7 @@ Author: jpaulovf@gmail.com
 
 """
 
+
 class DojotTemplate:
 
     _available_vtypes = ("string", "float", "integer", "geo")
@@ -36,11 +37,17 @@ class DojotTemplate:
             raise ValueError(f"Invalid argument type '{type}'.")
         if value_type not in self._available_vtypes:
             raise ValueError(f"Invalid argument type '{value_type}'.")
-        self._attrs.append({'label': str(label), 'type': type, 'value_type': value_type})
+        self._attrs.append({
+            'label': str(label),
+            'type': type,
+            'value_type': value_type
+        })
 
     def remove_attribute(self, label: str):
-        to_remove = next((i for i, x in enumerate(self._attrs) if x['label'] == label), None)
-        if to_remove != None:
+        to_remove = next(
+            (i for i, x in enumerate(self._attrs) if x['label'] == label),
+            None)
+        if to_remove is not None:
             self._attrs.pop(to_remove)
 
     def __str__(self):
@@ -54,4 +61,3 @@ class DojotTemplate:
 
     def __getitem__(self, item):
         return self._attrs[item]
-
